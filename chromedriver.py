@@ -3,6 +3,7 @@ import StringIO
 import requests
 import os
 import os.path
+import re
 import stat
 import sys
 import zipfile
@@ -30,7 +31,7 @@ version_file = '{0}.version'.format(target_file)
 if os.path.exists(version_file):
     current_version = open(version_file).readline()
     if current_version == version:
-        logging.warning('current version of SDK is already installed')
+        logging.warning('current version of chromedriver is already installed')
         exit()
 
 logging.warning('fetching new {0} version of chromedriver'.format(version))
@@ -47,7 +48,13 @@ if response.status_code == 200:
     os.chmod(target_file,
              os.stat(target_file).st_mode | all_x)
     open(version_file, 'w').write(version)
-    logging.warning('changelog notes: {0}'.format(NOTES_URL.format(version)))
+    logging.warning('release notes: {0}'.format(NOTES_URL.format(version)))
+    release_notes = re.search(
+        '(----------ChromeDriver v{0}.*?)----------Chrome'.format(version),
+        requests.get(NOTES_URL.format(version)).content,
+        re.DOTALL)
+    if release_notes and release_notes.group(1):
+        logging.warning(release_notes.group(1))
     logging.warning('done')
     exit()
 else:
