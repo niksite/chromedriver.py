@@ -28,7 +28,7 @@ version = requests.get(VERSION_URL).content
 target_file = os.path.join(dest, 'chromedriver')
 
 version_file = '{0}.version'.format(target_file)
-if os.path.exists(version_file):
+if os.path.exists(version_file) and os.path.exists(target_file):
     current_version = open(version_file).readline()
     if current_version == version:
         logging.warning('current version of chromedriver is already installed')
